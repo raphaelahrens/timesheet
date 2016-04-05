@@ -4,7 +4,8 @@ import fileinput
 import re
 import deltaformat
 
-SOLL_TIME = datetime.timedelta(hours=30, minutes=48)
+DAYLY_SOLL_TIME = datetime.timedelta(hours=7, minutes=48)
+LAUNCH_PAUSE = datetime.timedelta(minutes=45)
 
 
 def main():
@@ -23,7 +24,8 @@ def main():
             check = ' ✓'
 
         print(line[:-1] + check)
-    pause_sum = datetime.timedelta(minutes=45) * time_count
+    pause_sum = LAUNCH_PAUSE * time_count
+    work_soll = DAYLY_SOLL_TIME * time_count
     padding = ' ' * 30
     total = work_sum - pause_sum
     print("{padding}=>{work:^7}-{pause:^7}-{soll:^7}= ({total:^7},{diff:^7})".format(
@@ -31,8 +33,8 @@ def main():
         work=deltaformat.h_and_mins(work_sum),
         pause=deltaformat.h_and_mins(pause_sum),
         total=deltaformat.h_and_mins(total),
-        soll=deltaformat.h_and_mins(SOLL_TIME),
-        diff=deltaformat.h_and_mins(total - SOLL_TIME)))
+        soll=deltaformat.h_and_mins(work_soll),
+        diff=deltaformat.h_and_mins(total - work_soll)))
     return 0
 
 if __name__ == "__main__":
