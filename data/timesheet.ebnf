@@ -1,0 +1,40 @@
+start = {line} $;
+
+line = work_line
+     | unfinished
+     | special_line
+     | sum_line
+     | balance_line;
+
+special_line = weekday:weekday date:date comment:string ['|'];
+
+start_time = start:time '--';
+time_span = >start_time end:time;
+opt_extra = total:diff '=>' saldo:diff [done:'✓'];
+unfinished = weekday:weekday date:date >start_time;
+work_line = weekday:weekday date:date >time_span ['|' >opt_extra];
+
+
+sum_line = '=>' total:diff '-' breaks:diff '-' soll:diff '=' '(' work:diff ',' diff:diff ')';
+
+balance_line = '->' 'Balance' '=' @:diff;
+
+
+date = day:DD '.' month:DD '.' year:YEAR;
+time = hour:DD ':' minute:DD;
+diff = sign:SIGN hours:ND ':' minutes:DD;
+
+DD = /\d\d/;
+YEAR = /\d\d\d\d/;
+ND = /\d+/;
+SIGN = ('-'|`'+'`);
+
+weekday = 'Mon'
+        | 'Tue'
+        | 'Wed'
+        | 'Thu'
+        | 'Fri'
+        | 'Sat'
+        | 'Sun';
+
+string = /"[^"]*"/; 
