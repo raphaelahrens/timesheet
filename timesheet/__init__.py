@@ -1,6 +1,7 @@
-import itertools
-import datetime
 import calendar
+import datetime
+import itertools
+
 import timesheet.ast
 
 
@@ -48,13 +49,15 @@ def fill(tree):
             else:
                 while day < next_record_date:
                     if day.weekday() != calendar.SUNDAY:
-                        yield timesheet.ast.Special(date=day, comment='"-"', week_day=day.weekday())
+                        yield timesheet.ast.Special(date=day,
+                                                    comment='"-"',
+                                                    weekday=day.weekday())
                     day = day + datetime.timedelta(days=1)
                 yield node
                 day = day + datetime.timedelta(days=1)
                 try:
                     next_record_date = next(work_day_gen)
-                except:
+                except StopIteration:
                     pass
     return gen_days(tree)
 
@@ -72,7 +75,8 @@ def takeuntil(predicate, iterable, not_found=None):
 
 
 def balance(tree):
-    last_days = list(takeuntil(is_balance, reversed(tree), timesheet.ast.Balance.zero()))
+    last_days = list(takeuntil(is_balance, reversed(tree),
+                               timesheet.ast.Balance.zero()))
     balance_node = sum(last_days[:-1], last_days[-1])
     return tree + [balance_node]
 

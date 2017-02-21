@@ -1,7 +1,7 @@
 import datetime
 import calendar
 import collections
-import timesheet.tsparser
+import timesheet.parser
 
 DAYLY_SOLL_TIME = datetime.timedelta(hours=7, minutes=48)
 LAUNCH_PAUSE = datetime.timedelta(minutes=45)
@@ -180,11 +180,11 @@ class Month(Node):
 
     def pprint(self):
         return (PADDING + '=>{work:^9}-{pause:^7}-{soll:^7}= ({total:^7},{diff:^7})'.format(
-                work=print_diff(self.total),
-                pause=print_diff(self.breaks),
-                total=print_diff(self.work),
-                soll=print_diff(self.soll),
-                diff=print_diff(self.diff)))
+            work=print_diff(self.total),
+            pause=print_diff(self.breaks),
+            total=print_diff(self.work),
+            soll=print_diff(self.soll),
+            diff=print_diff(self.diff)))
 
     def __add__(self, obj):
         if type(obj) is Work:
@@ -198,7 +198,7 @@ class Month(Node):
 WEEKDAYS = {day: n for day, n in zip(calendar.day_abbr, range(7))}
 
 
-class TimeSheetSemantics(timesheet.tsparser.TimeSheetSemantics):
+class TimeSheetSemantics(timesheet.parser.TimeSheetSemantics):
     def start(self, ast):
         return ast
 

@@ -39,7 +39,7 @@ def run_cmd(cmd, args):
     return pprint(cmd(tree))
 
 
-def run_no_input_cmd(cmd, args):
+def run_no_input_cmd(cmd):
     return pprint(cmd())
 
 
@@ -49,7 +49,7 @@ def main():
     if cmd_str in commands:
         return run_cmd(commands[cmd_str], args)
     elif cmd_str in no_input_cmds:
-        return run_no_input_cmd(no_input_cmds[cmd_str], args)
+        return run_no_input_cmd(no_input_cmds[cmd_str])
 
     return 0
 
