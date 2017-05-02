@@ -1,0 +1,70 @@
+\NeedsTeXFormat{LaTeX2e}[1994/06/01]
+\ProvidesPackage{tsreport}[2013/04/29 v1.5.1 modern curriculum vitae and letter document class]
+\RequirePackage{graphicx}
+
+\RequirePackage{datetime}% deutsch
+\RequirePackage[a4paper,margin=2.cm]{geometry}
+
+\newdateformat{monthyeardate}{%
+  \monthname[\THEMONTH], \THEYEAR}
+
+\newdateformat{daymonthyeardate}{%
+  \twodigit{\THEDAY}.\twodigit{\THEMONTH}.\THEYEAR}
+
+\renewcommand*\rmdefault{iwona}
+
+\newcommand*{\Signature}[3]{%
+    \parbox{2.0in}{%
+          \begin{tabular}{#3}%
+            #2\\%
+            \hline%
+              \multicolumn{1}{c}{\footnotesize #1}%
+          \end{tabular}%
+    }%
+}%
+
+\newcommand*{\headline}{%
+  \textbf{Tag} & \textbf{Datum} & \textbf{nominelle} & \multicolumn{2}{c}{\textbf{Uhrzeit}} & \multicolumn{2}{c}{\textbf{Zeitsalden}}\\
+                     &                & \textbf{Arbeitszeit} & \textbf{Arbeitsbeginn} & \textbf{Arbeitsende} &                     \multicolumn{2}{c}{\textbf{pro Tag}}\\
+        \multicolumn{7}{l}{}                    \\ %
+}
+
+\newenvironment{report}{%
+\centering
+\parbox{6cm}{%
+    {\huge \textbf Arbeitszeitkonto}\\
+    {\large \monthyeardate\displaydate{monthdate}}
+}
+\hfill
+\raisebox{-.5\height}{\includegraphics[width=0.33\textwidth]{fraunhofer.png}}
+\vspace{1.5cm}
+
+\Signature{Name, Vorname}{Ahrens, Raphael}{c} \hfill \Signature{Org. - Einheit}{310}{r}
+
+\vspace{1cm}
+
+}{%
+
+\vspace{2cm}
+\centering
+\Signature{Datum, Unterschift des Mitarbeiters}{\daymonthyeardate\today ,}{l} \hspace{3cm} \Signature{Datum, Unterschift des Vorgesetzten}{}{l}
+}
+\newenvironment{timesheet}{%
+    \begin{tabular}{lllllcl}%
+        \multicolumn{7}{l}{}                    \\ %
+}{%
+    \end{tabular}
+}%
+
+\newcommand*{\startweek}{\hline}
+\newcommand*{\closeweek}{%
+    \hline%
+    \multicolumn{7}{l}{}                    \\ %
+}
+\newcommand*{\closemonth}[3]{%
+    \multicolumn{5}{l}{#3}                    & #1 & #2\\ %
+    \multicolumn{7}{l}{}                    \\ %
+}
+
+\setlength\parindent{0pt}
+
