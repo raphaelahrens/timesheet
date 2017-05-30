@@ -8,7 +8,6 @@ import timesheet.ast
 def check(tree):
     node_list = list(itertools.filterfalse(lambda x: x.check(), tree))
     correct_list = [x.calc() for x in node_list]
-    print(correct_list)
     return list(itertools.chain(*zip(node_list, correct_list)))
 
 

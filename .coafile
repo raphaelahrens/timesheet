@@ -1,0 +1,5 @@
+[Default]
+bears = BanditBear, FilenameBear, InvalidLinkBear, KeywordBear, LineLengthBear, PEP8Bear, PyCommentedCodeBear, PyDocStyleBear, PyImportSortBear, PyLintBear, PyUnusedCodeBear, PycodestyleBear, RadonBear, SpaceConsistencyBear, coalaBear
+language = Python 3
+files = timesheet/*.py
+use_spaces = True

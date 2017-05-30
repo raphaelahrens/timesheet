@@ -8,6 +8,8 @@ LAUNCH_PAUSE = datetime.timedelta(minutes=45)
 PADDING = 36 * ' '
 BASE = '{0} {1:%d.%m.%Y} '
 
+ZERO_DT = datetime.timedelta(0)
+
 
 def print_diff(delta):
     if delta is None:
@@ -22,9 +24,21 @@ def print_diff(delta):
 
 
 def calc_total(work):
-    start = datetime.datetime.combine(work.date, work.start)
-    end = datetime.datetime.combine(work.date, work.end)
-    return end - start
+    def diff_time_span(time_span):
+        start = datetime.datetime.combine(work.date, time_span.start)
+        end = datetime.datetime.combine(work.date, time_span.end)
+        return end - start
+
+    def calc_pause(a, b):
+        b_start = datetime.datetime.combine(work.date, b.start)
+        a_end = datetime.datetime.combine(work.date, a.end)
+        return a_end - b_start
+
+    total_time = sum(map(diff_time_span, work.time_spans), ZERO_DT)
+    double_iterator = ((x, y) for x, y in zip(work.time_spans, work.time_spans[1:]))
+    pause = sum((calc_pause(*x) for x in double_iterator), ZERO_DT)
+
+    return total_time, pause
 
 
 class V(object):
@@ -80,33 +94,46 @@ class Special(Node):
                               self.comment)
 
 
-class Work(Node):
-    date = V()
+class TimeSpan(Node):
     start = V()
     end = V()
+    pause = V(datetime.timedelta(0))
+
+    def pprint(self):
+        return '{:%H:%M} -- {:%H:%M}'.format(self.start, self.end)
+
+
+class Work(Node):
+    date = V()
     weekday = V()
     total = V()
     saldo = V()
-    done = V(default=True)
+    time_spans = V()
+    pause = V(datetime.timedelta(0))
 
     def check(self):
-        return (calc_total(self) == self.total and
+        total, pause = calc_total(self)
+        return (total == self.total and
                 self.weekday == self.date.weekday())
 
     def calc(self):
-        new_total = calc_total(self)
+        new_total, new_pause = calc_total(self)
         new_saldo = new_total - DAYLY_SOLL_TIME - LAUNCH_PAUSE
-        return Work(self.date, self.start, self.end, self.date.weekday(), new_total, new_saldo, self.done)
+        return Work(self.date,
+                    self.date.weekday(),
+                    new_total,
+                    new_saldo,
+                    self.time_spans)
 
     def pprint(self):
+        time_span_str = '\n                  '.join(map(TimeSpan.pprint, self.time_spans))
         if self.total is None:
-            fmt_str = (BASE + '   {2:%H:%M} -- {3:%H:%M}')
+            fmt_str = (BASE + '   {2}')
         else:
-            fmt_str = (BASE + '   {2:%H:%M} -- {3:%H:%M}    | {4:>6} => {5}')
+            fmt_str = (BASE + '   {2}    | {3:>6} => {4}')
         return fmt_str.format(calendar.day_abbr[self.weekday],
                               self.date,
-                              self.start,
-                              self.end,
+                              time_span_str,
                               print_diff(self.total),
                               print_diff(self.saldo))
 
@@ -207,6 +234,9 @@ class TimeSheetSemantics(timesheet.parser.TimeSheetSemantics):
 
     def special_line(self, ast):
         return Special(**ast)
+
+    def time_span(self, ast):
+        return TimeSpan(**ast)
 
     def work_line(self, ast):
         return Work(**ast)

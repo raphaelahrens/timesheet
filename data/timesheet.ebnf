@@ -1,3 +1,5 @@
+@@grammar :: TimeSheet
+
 start = {line} $;
 
 line = work_line
@@ -9,10 +11,10 @@ line = work_line
 special_line = weekday:weekday date:date comment:string ['|'];
 
 start_time = start:time '--';
-time_span = >start_time end:time;
-opt_extra = total:diff '=>' saldo:diff [done:'✓'];
+time_span = >start_time end:time ['(' pause:diff ')'];
+opt_extra = total:diff '=>' saldo:diff;
 unfinished = weekday:weekday date:date >start_time;
-work_line = weekday:weekday date:date >time_span ['|' >opt_extra];
+work_line = weekday:weekday date:date time_spans:{time_span}+ ['|' >opt_extra];
 
 
 sum_line = '=>' total:diff '-' breaks:diff '-' soll:diff '=' '(' work:diff ',' diff:diff ')';
