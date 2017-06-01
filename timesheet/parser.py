@@ -88,9 +88,9 @@ class TimeSheetParser(Parser):
     def _line_(self):
         with self._choice():
             with self._option():
-                self._work_line_()
-            with self._option():
                 self._unfinished_()
+            with self._option():
+                self._work_line_()
             with self._option():
                 self._special_line_()
             with self._option():
@@ -135,10 +135,10 @@ class TimeSheetParser(Parser):
         with self._optional():
             self._token('(')
             self._diff_()
-            self.name_last_node('diff')
+            self.name_last_node('pause')
             self._token(')')
         self.ast._define(
-            ['diff', 'end', 'start'],
+            ['end', 'pause', 'start'],
             []
         )
 
@@ -160,11 +160,16 @@ class TimeSheetParser(Parser):
         self.name_last_node('weekday')
         self._date_()
         self.name_last_node('date')
+
+        def block3():
+            self._time_span_()
+        self._closure(block3)
+        self.name_last_node('time_spans')
         self._time_()
         self.name_last_node('start')
         self._token('--')
         self.ast._define(
-            ['date', 'start', 'weekday'],
+            ['date', 'start', 'time_spans', 'weekday'],
             []
         )
 
@@ -287,6 +292,10 @@ class TimeSheetParser(Parser):
                 self._error('expecting one of: -')
 
     @graken()
+    def _EOL_(self):
+        self._pattern(r'\n')
+
+    @graken()
     def _weekday_(self):
         with self._choice():
             with self._option():
@@ -360,6 +369,9 @@ class TimeSheetSemantics(object):
         return ast
 
     def SIGN(self, ast):
+        return ast
+
+    def EOL(self, ast):
         return ast
 
     def weekday(self, ast):

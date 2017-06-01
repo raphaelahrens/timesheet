@@ -7,14 +7,6 @@ import sys
 import timesheet
 
 
-def parse_args(args):
-    parser = argparse.ArgumentParser(description='Timesheet')
-    parser.add_argument('command', type=str, help='timesheet commando')
-    parser.add_argument('file', type=argparse.FileType('r'), nargs='?', default='-',
-                        help='The timesheet file')
-    return parser.parse_args(args)
-
-
 def pprint(tree):
     for node in tree:
         print(node.pprint())
@@ -28,6 +20,17 @@ commands = {'check': timesheet.check,
             'fill': timesheet.fill,
             'logout': timesheet.logout,
             'calc': timesheet.calc}
+
+LIST_CMDS = ' '.join(commands.keys())
+
+
+def parse_args(args):
+    parser = argparse.ArgumentParser(description='Timesheet')
+    parser.add_argument('command', type=str, help='timesheet commando [{}]'.format(LIST_CMDS))
+    parser.add_argument('file', type=argparse.FileType('r'), nargs='?', default='-',
+                        help='The timesheet file')
+    return parser.parse_args(args)
+
 
 no_input_cmds = {'login': timesheet.login}
 
