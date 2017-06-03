@@ -139,6 +139,8 @@ class Work(Node):
 
 
 class Unfinished(Work):
+    start = V()
+
     @staticmethod
     def now():
         dt_now = datetime.datetime.now()
@@ -151,6 +153,37 @@ class Unfinished(Work):
         return fmt_str.format(calendar.day_abbr[self.weekday],
                               self.date,
                               self.start)
+
+    def check(self):
+        return False
+
+    def calc(self):
+        self.end = datetime.datetime.now().time()
+        return super().calc()
+
+
+class SubUnfinished(Node):
+    start = V()
+
+    def pprint(self):
+        fmt_str = ('                     {:%H:%M} --')
+        return fmt_str.format(self.start)
+
+    def check(self):
+        return False
+
+    def calc(self):
+        self.end = datetime.datetime.now().time()
+        return SubFinished(self.start, self.end)
+
+
+class SubFinished(Node):
+    start = V()
+    end = V()
+
+    def pprint(self):
+        fmt_str = ('                     {:%H:%M} -- {:%H:%M}')
+        return fmt_str.format(self.start, self.end)
 
     def check(self):
         return False
@@ -243,6 +276,9 @@ class TimeSheetSemantics(timesheet.parser.TimeSheetSemantics):
 
     def unfinished(self, ast):
         return Unfinished(**ast)
+
+    def sub_unfinished(self, ast):
+        return SubUnfinished(**ast)
 
     def sum_line(self, ast):
         return Month(**ast)

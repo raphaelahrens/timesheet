@@ -6,6 +6,8 @@ import sys
 
 import timesheet
 
+TS_PARSER = timesheet.parser.TimeSheetParser(semantics=timesheet.ast.TimeSheetSemantics())
+
 
 def pprint(tree):
     for node in tree:
@@ -13,15 +15,46 @@ def pprint(tree):
     return 0
 
 
-commands = {'check': timesheet.check,
-            'balance': timesheet.balance,
-            'sum': timesheet.time_sum,
-            'print': pprint,
-            'fill': timesheet.fill,
-            'logout': timesheet.logout,
-            'calc': timesheet.calc}
+class Cmd(object):
+    all = {}
 
-LIST_CMDS = ' '.join(commands.keys())
+    def __init__(self, name, fn, rule_name='start'):
+        self.fn = fn
+        self.rule_name = rule_name
+
+        Cmd.all[name] = self
+
+    def execute(self, args):
+        tree = TS_PARSER.parse(args.file.read(), rule_name=self.rule_name)
+        return self.fn(tree)
+
+    @classmethod
+    def get(cls, name):
+        return cls.all[name]
+
+    @classmethod
+    def run(cls, args):
+        name = args.command
+        cmd = cls.get(name)
+        return pprint(cmd.execute(args))
+
+
+class NoInputCmd(Cmd):
+    def execute(self, args):
+        return self.fn()
+
+
+Cmd('check', timesheet.check)
+Cmd('balance', timesheet.balance)
+Cmd('sum', timesheet.time_sum)
+Cmd('print', pprint)
+Cmd('fill', timesheet.fill)
+Cmd('logout', timesheet.logout, rule_name='sp_unfinished')
+Cmd('calc', timesheet.calc)
+
+NoInputCmd('login', timesheet.login)
+
+LIST_CMDS = ' '.join(Cmd.all.keys())
 
 
 def parse_args(args):
@@ -30,9 +63,6 @@ def parse_args(args):
     parser.add_argument('file', type=argparse.FileType('r'), nargs='?', default='-',
                         help='The timesheet file')
     return parser.parse_args(args)
-
-
-no_input_cmds = {'login': timesheet.login}
 
 
 def run_cmd(cmd, args):
@@ -48,13 +78,7 @@ def run_no_input_cmd(cmd):
 
 def main():
     args = parse_args(sys.argv[1:])
-    cmd_str = args.command
-    if cmd_str in commands:
-        return run_cmd(commands[cmd_str], args)
-    elif cmd_str in no_input_cmds:
-        return run_no_input_cmd(no_input_cmds[cmd_str])
-
-    return 0
+    return Cmd.run(args)
 
 
 if __name__ == "__main__":

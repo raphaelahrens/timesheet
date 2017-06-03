@@ -25,6 +25,11 @@ def logout(tree):
                                            time_spans=time_spans,
                                            weekday=last_node.weekday)
         return tree[:-1] + [finished_node]
+    elif isinstance(last_node, timesheet.ast.SubUnfinished):
+        end_time = datetime.datetime.now().time()
+        finished_node = timesheet.ast.SubFinished(start=last_node.start, end=end_time)
+                                           
+        return tree[:-1] + [finished_node]
     else:
         return tree
 

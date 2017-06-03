@@ -174,6 +174,28 @@ class TimeSheetParser(Parser):
         )
 
     @graken()
+    def _sub_unfinished_(self):
+        self._time_()
+        self.name_last_node('start')
+        self._token('--')
+        self.ast._define(
+            ['start'],
+            []
+        )
+
+    @graken()
+    def _sp_unfinished_(self):
+        with self._group():
+            with self._choice():
+                with self._option():
+                    self._start_()
+                    self.name_last_node('@')
+                with self._option():
+                    self._sub_unfinished_()
+                    self.add_last_node_to_name('@')
+                self._error('no available options')
+
+    @graken()
     def _work_line_(self):
         self._weekday_()
         self.name_last_node('weekday')
@@ -339,6 +361,12 @@ class TimeSheetSemantics(object):
         return ast
 
     def unfinished(self, ast):
+        return ast
+
+    def sub_unfinished(self, ast):
+        return ast
+
+    def sp_unfinished(self, ast):
         return ast
 
     def work_line(self, ast):

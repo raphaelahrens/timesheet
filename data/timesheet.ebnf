@@ -14,6 +14,11 @@ start_time = start:time '--';
 time_span = >start_time end:time ['(' pause:diff ')'];
 opt_extra = total:diff '=>' saldo:diff;
 unfinished = weekday:weekday date:date time_spans:{time_span}* >start_time;
+
+sub_unfinished = >start_time;
+
+sp_unfinished = ( @:start | @+:sub_unfinished);
+
 work_line = weekday:weekday date:date  time_spans:{time_span}+  ['|' >opt_extra];
 
 
