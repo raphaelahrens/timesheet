@@ -23,10 +23,14 @@
     }%
 }%
 
+\newcommand*{\emptyline}{%
+        \multicolumn{8}{l}{}                    \\ %
+}
+
 \newcommand*{\headline}{%
-  \textbf{Tag} & \textbf{Datum} & \textbf{nominelle} & \multicolumn{2}{c}{\textbf{Uhrzeit}} & \multicolumn{2}{c}{\textbf{Zeitsalden}}\\
-                     &                & \textbf{Arbeitszeit} & \textbf{Arbeitsbeginn} & \textbf{Arbeitsende} &                     \multicolumn{2}{c}{\textbf{pro Tag}}\\
-        \multicolumn{7}{l}{}                    \\ %
+    \textbf{Tag} & \textbf{Datum} & \textbf{nominelle}   & \multicolumn{2}{c}{\textbf{Uhrzeit}}          & \textbf{Arbeitszeit} & \multicolumn{2}{c}{\textbf{Zeitsalden}}\\
+                 &                & \textbf{Arbeitszeit} & \textbf{Arbeitsbeginn} & \textbf{Arbeitsende} &                      & \multicolumn{2}{c}{\textbf{pro Tag}}\\
+        \emptyline%
 }
 
 \newenvironment{report}{%
@@ -50,8 +54,8 @@
 \Signature{Datum, Unterschift des Mitarbeiters}{\daymonthyeardate\today ,}{l} \hspace{3cm} \Signature{Datum, Unterschift des Vorgesetzten}{}{l}
 }
 \newenvironment{timesheet}{%
-    \begin{tabular}{lllllcl}%
-        \multicolumn{7}{l}{}                    \\ %
+    \begin{tabular}{llllllcl}%
+        \emptyline%
 }{%
     \end{tabular}
 }%
@@ -59,11 +63,11 @@
 \newcommand*{\startweek}{\hline}
 \newcommand*{\closeweek}{%
     \hline%
-    \multicolumn{7}{l}{}                    \\ %
+        \emptyline%
 }
 \newcommand*{\closemonth}[3]{%
-    \multicolumn{5}{l}{#3}                    & #1 & #2\\ %
-    \multicolumn{7}{l}{}                    \\ %
+    \multicolumn{6}{l}{#3}                    & #1 & #2\\ %
+        \emptyline%
 }
 
 \setlength\parindent{0pt}

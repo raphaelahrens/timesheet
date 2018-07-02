@@ -51,6 +51,7 @@ Cmd('print', lambda x: x)
 Cmd('fill', timesheet.fill)
 Cmd('logout', timesheet.logout, rule_name='sp_unfinished')
 Cmd('calc', timesheet.calc)
+Cmd('report', timesheet.report)
 
 NoInputCmd('login', timesheet.login)
 

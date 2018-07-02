@@ -3,6 +3,7 @@ import datetime
 import itertools
 
 import timesheet.ast
+import timesheet.latex
 
 
 ZERO_DT = datetime.timedelta(0)
@@ -119,3 +120,7 @@ def time_sum(tree):
     last_days = itertools.takewhile(is_day, reversed(tree))
     sum_node = sum(last_days, timesheet.ast.Month.zero())
     return tree + [sum_node]
+
+
+def report(tree):
+    return timesheet.latex.report(tree)
