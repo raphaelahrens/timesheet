@@ -11,7 +11,7 @@ line = unfinished
 special_line = weekday:weekday date:date comment:string ['|'];
 
 start_time = start:time '--';
-time_span = >start_time end:time ['(' pause:diff ')'];
+time_span = >start_time end:time;
 opt_extra = total:diff '=>' saldo:diff;
 unfinished = weekday:weekday date:date time_spans:{time_span}* >start_time;
 
@@ -19,7 +19,7 @@ sub_unfinished = >start_time;
 
 sp_unfinished = ( @:start | @+:sub_unfinished);
 
-work_line = weekday:weekday date:date  time_spans:{time_span}+  ['|' >opt_extra];
+work_line = weekday:weekday date:date  time_spans:{time_span}+  ['|' '(' pause:diff ')' >opt_extra];
 
 
 sum_line = '=>' total:diff '-' breaks:diff '-' soll:diff '=' '(' work:diff ',' diff:diff ')';

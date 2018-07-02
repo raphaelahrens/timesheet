@@ -47,7 +47,7 @@ class NoInputCmd(Cmd):
 Cmd('check', timesheet.check)
 Cmd('balance', timesheet.balance)
 Cmd('sum', timesheet.time_sum)
-Cmd('print', pprint)
+Cmd('print', lambda x: x)
 Cmd('fill', timesheet.fill)
 Cmd('logout', timesheet.logout, rule_name='sp_unfinished')
 Cmd('calc', timesheet.calc)
@@ -63,17 +63,6 @@ def parse_args(args):
     parser.add_argument('file', type=argparse.FileType('r'), nargs='?', default='-',
                         help='The timesheet file')
     return parser.parse_args(args)
-
-
-def run_cmd(cmd, args):
-    ts_parser = timesheet.parser.TimeSheetParser(semantics=timesheet.ast.TimeSheetSemantics())
-    tree = ts_parser.parse(args.file.read())
-
-    return pprint(cmd(tree))
-
-
-def run_no_input_cmd(cmd):
-    return pprint(cmd())
 
 
 def main():

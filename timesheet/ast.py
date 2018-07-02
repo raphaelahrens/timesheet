@@ -4,23 +4,15 @@ import collections
 import timesheet.parser
 
 DAYLY_SOLL_TIME = datetime.timedelta(hours=7, minutes=48)
+PAUSE_THRESHOLD = datetime.timedelta(hours=5, minutes=0)
 LAUNCH_PAUSE = datetime.timedelta(minutes=45)
 PADDING = 36 * ' '
 BASE = '{0} {1:%d.%m.%Y} '
 
-ZERO_DT = datetime.timedelta(0)
 
-
-def print_diff(delta):
-    if delta is None:
-        return ''
-    sign = ' '
-    if delta < datetime.timedelta():
-        sign = '-'
-        delta = abs(delta)
-    hours = (delta.days * 24) + (delta.seconds // 3600)
-    minutes = delta.seconds // 60 % 60
-    return '{0}{1:d}:{2:02d}'.format(sign, hours, minutes)
+def print_diff(delta, default_plus=' '):
+    sign, time = timesheet.diff_split(delta, default_plus)
+    return '{0}{1}'.format(sign, time)
 
 
 def calc_total(work):
@@ -32,11 +24,14 @@ def calc_total(work):
     def calc_pause(a, b):
         b_start = datetime.datetime.combine(work.date, b.start)
         a_end = datetime.datetime.combine(work.date, a.end)
-        return a_end - b_start
+        return b_start - a_end
 
-    total_time = sum(map(diff_time_span, work.time_spans), ZERO_DT)
+    total_time = sum(map(diff_time_span, work.time_spans), timesheet.ZERO_DT)
     double_iterator = ((x, y) for x, y in zip(work.time_spans, work.time_spans[1:]))
-    pause = sum((calc_pause(*x) for x in double_iterator), ZERO_DT)
+    pause = sum((calc_pause(*x) for x in double_iterator), timesheet.ZERO_DT)
+
+    if total_time > PAUSE_THRESHOLD and pause < LAUNCH_PAUSE:
+        pause = LAUNCH_PAUSE
 
     return total_time, pause
 
@@ -89,7 +84,7 @@ class Special(Node):
 
     def pprint(self):
         fmt_str = BASE + '{2:^20} |'
-        return fmt_str.format(calendar.day_abbr[self.weekday],
+        return fmt_str.format(timesheet.weekday_str(self.weekday),
                               self.date,
                               self.comment)
 
@@ -123,17 +118,27 @@ class Work(Node):
                     self.date.weekday(),
                     new_total,
                     new_saldo,
-                    self.time_spans)
+                    self.time_spans,
+                    new_pause)
+
+    @property
+    def start(self):
+        return min(self.time_spans, key=lambda x: x.start).start
+
+    @property
+    def end(self):
+        return max(self.time_spans, key=lambda x: x.end).end
 
     def pprint(self):
         time_span_str = '\n                  '.join(map(TimeSpan.pprint, self.time_spans))
         if self.total is None:
             fmt_str = (BASE + '   {2}')
         else:
-            fmt_str = (BASE + '   {2}    | {3:>6} => {4}')
-        return fmt_str.format(calendar.day_abbr[self.weekday],
+            fmt_str = (BASE + '   {2}    | ({3}) {4:>6} => {5}')
+        return fmt_str.format(timesheet.weekday_str(self.weekday),
                               self.date,
                               time_span_str,
+                              print_diff(self.pause, '-'),
                               print_diff(self.total),
                               print_diff(self.saldo))
 
@@ -150,7 +155,7 @@ class Unfinished(Work):
 
     def pprint(self):
         fmt_str = (BASE + '   {2:%H:%M} --')
-        return fmt_str.format(calendar.day_abbr[self.weekday],
+        return fmt_str.format(timesheet.weekday_str(self.weekday),
                               self.date,
                               self.start)
 
@@ -198,7 +203,7 @@ class Balance(Node):
 
     @classmethod
     def zero(cls):
-        return Balance(datetime.timedelta(0))
+        return Balance(timesheet.timesheet.ZERO_DT)
 
     def check(self):
         return True

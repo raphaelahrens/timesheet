@@ -5,6 +5,27 @@ import itertools
 import timesheet.ast
 
 
+ZERO_DT = datetime.timedelta(0)
+
+
+def weekday_str(weekday):
+    return calendar.day_abbr[weekday]
+
+
+def abs_td(td, default_plus):
+    sign = default_plus if td >= ZERO_DT else '-'
+    return sign, abs(td)
+
+
+def diff_split(delta, default_plus=' '):
+    if delta is None:
+        return ' ', ''
+    sign, delta = abs_td(delta, default_plus)
+    hours = (delta.days * 24) + (delta.seconds // 3600)
+    minutes = delta.seconds // 60 % 60
+    return sign, '{0:d}:{1:02d}'.format(hours, minutes)
+
+
 def check(tree):
     node_list = list(itertools.filterfalse(lambda x: x.check(), tree))
     correct_list = [x.calc() for x in node_list]
