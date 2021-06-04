@@ -55,7 +55,6 @@
 }
 \newenvironment{timesheet}{%
     \begin{tabular}{llllllcl}%
-        \emptyline%
 }{%
     \end{tabular}
 }%
@@ -66,7 +65,7 @@
         \emptyline%
 }
 \newcommand*{\closemonth}[3]{%
-    \multicolumn{6}{l}{#3}                    & #1 & #2\\ %
+    \multicolumn{6}{l}{\textbf{#3}}                    & \textbf{#1} & #2\\ %
         \emptyline%
 }
 

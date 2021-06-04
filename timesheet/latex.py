@@ -44,7 +44,7 @@ def process_special_day(node):
 
 def process_work_day(node):
     sign, saldo = timesheet.diff_split(node.saldo, '+')
-    _, work_time = timesheet.diff_split(node.total - node.pause)
+    _, work_time = timesheet.diff_split(node.total)
     return WORK_DAY.format(weekday=timesheet.weekday_str(node.weekday),
                            date=node.date,
                            start=node.start,
@@ -62,7 +62,7 @@ def process_balance_node(node, text):
 
 
 def process_balance_start(node):
-    balance_line = process_balance_node(node, '')
+    balance_line = process_balance_node(node, 'Übertrag aus dem Vormonat')
     global process_balance
     process_balance = process_balance_end
     return '\n'.join((balance_line, HEAD_LINE, START_WEEK))
